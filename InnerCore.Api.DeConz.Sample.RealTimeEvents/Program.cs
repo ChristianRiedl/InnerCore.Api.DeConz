@@ -62,7 +62,8 @@ namespace InnerCore.Api.DeConz.Sample.RealTimeEvents
         {
             if (e.State != null)
             {
-                Console.WriteLine($"Light {e.Id} has changed it's state");
+                //Console.WriteLine($"Light {e.Id} has changed it's state");
+                Console.WriteLine($"Light {e.Id} B{e.State.Brightness} T{e.State.ColorTemperature} S{e.State.Saturation} H{e.State.Hue} {e.State.Mode} {e.State.ColorMode} {e.State.ColorCoordinates[0]}/{e.State.ColorCoordinates[1]} ");
             }
         }
         private static void Client_GroupChanged(object sender, Models.WebSocket.GroupChangedEvent e)
