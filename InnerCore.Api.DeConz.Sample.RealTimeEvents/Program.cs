@@ -35,6 +35,9 @@ namespace InnerCore.Api.DeConz.Sample.RealTimeEvents
             // setup the events
 
             client.SensorChanged += Client_SensorChanged;
+            client.LightChanged += Client_LightChanged;
+            client.GroupChanged += Client_GroupChanged;
+            client.SceneCalled += Client_SceneCalled;
             client.ErrorEvent += Client_ErrorEvent;
 
             // start listening to events (infinite as long as the server does not close the connection)
@@ -54,6 +57,21 @@ namespace InnerCore.Api.DeConz.Sample.RealTimeEvents
             {
                 Console.WriteLine($"Sensor {e.Id} has changed it's state");
             }
+        }
+        private static void Client_LightChanged(object sender, Models.WebSocket.LightChangedEvent e)
+        {
+            if (e.State != null)
+            {
+                Console.WriteLine($"Light {e.Id} has changed it's state");
+            }
+        }
+        private static void Client_GroupChanged(object sender, Models.WebSocket.GroupChangedEvent e)
+        {
+            Console.WriteLine($"Group {e.Id} has changed it's state");
+        }
+        private static void Client_SceneCalled(object sender, Models.WebSocket.SceneCalledEvent e)
+        {
+            Console.WriteLine($"Scene {e.GroupId}/{e.SceneId} has been called");
         }
 
         private static void Client_ErrorEvent(object sender, Models.WebSocket.ErrorEvent e)

@@ -8,7 +8,7 @@ using InnerCore.Api.DeConz.Models.Lights;
 namespace InnerCore.Api.DeConz.Models
 {
     [DataContract]
-    public class State
+    public class LightState
     {
         [DataMember(Name = "on")]
         public bool On { get; set; }
@@ -30,7 +30,7 @@ namespace InnerCore.Api.DeConz.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         [DataMember(Name = "alert")]
-        public Alert Alert { get; set; }
+        public Alert? Alert { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [DataMember(Name = "effect")]

@@ -1,5 +1,6 @@
 ﻿using InnerCore.Api.DeConz.Models.WebSocket;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Net.WebSockets;
 using System.Text;
@@ -13,9 +14,11 @@ namespace InnerCore.Api.DeConz
     /// </summary>
     public partial class DeConzClient
     {
-        public event EventHandler<SensorChangedEvent> SensorChanged;
-
-        public event EventHandler<ErrorEvent> ErrorEvent;
+        public event EventHandler<SensorChangedEvent>   SensorChanged;
+        public event EventHandler<LightChangedEvent>    LightChanged;
+        public event EventHandler<GroupChangedEvent>    GroupChanged;
+        public event EventHandler<SceneCalledEvent>     SceneCalled;
+        public event EventHandler<ErrorEvent>           ErrorEvent;
 
         public async Task ListenToEvents()
         {
@@ -93,24 +96,54 @@ namespace InnerCore.Api.DeConz
 
                 if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Sensor)
                 {
-                    SensorChanged(this, new SensorChangedEvent()
+                    if (SensorChanged != null)
                     {
-                        Id = message.Id,
-                        Config = message.Config,
-                        State = message.State
-                    });
+                        var sensorMessage = JsonConvert.DeserializeObject<SensorMessage>(result);
+                        SensorChanged(this, new SensorChangedEvent()
+                        {
+                            Id = message.Id,
+                            Config = sensorMessage.Config,
+                            State = sensorMessage.State
+                        });
+                    }
                 }
-                else if (message.ResourceType == ResourceType.Light)
+                else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Light)
                 {
-                    // currently not supported
+                    if (LightChanged != null)
+                    {
+                        var lightMessage = JsonConvert.DeserializeObject<LightMessage>(result);
+
+                        LightChanged(this, new LightChangedEvent()
+                        {
+                            Id = message.Id,
+                            State = lightMessage.State
+                        });
+                    }
                 }
-                else if (message.ResourceType == ResourceType.Group)
+                else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Group)
                 {
-                    // currently not supported
+                    if (GroupChanged != null)
+                    {
+                        var groupMessage = JsonConvert.DeserializeObject<GroupMessage>(result);
+                        GroupChanged(this, new GroupChangedEvent()
+                        {
+                            Id = message.Id,
+                            AnyOn = groupMessage.AnyOn,
+                            AllOn = groupMessage.AllOn
+                        });
+                    }
                 }
-                else if (message.ResourceType == ResourceType.Scene)
+                else if (message.Event == EventType.SceneCalled && message.Type == MessageType.Event && message.ResourceType == ResourceType.Scene)
                 {
-                    // currently not supported
+                    if (SceneCalled != null)
+                    {
+                        var szeneMessage = JsonConvert.DeserializeObject<SzeneMessage>(result);
+                        SceneCalled(this, new SceneCalledEvent()
+                        {
+                            GroupId = szeneMessage.GroupId,
+                            SceneId = szeneMessage.SceneId
+                        });
+                    }
                 }
                 else
                 {

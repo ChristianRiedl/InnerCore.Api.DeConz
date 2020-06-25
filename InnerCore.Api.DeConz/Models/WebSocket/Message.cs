@@ -17,11 +17,5 @@ namespace InnerCore.Api.DeConz.Models.WebSocket
 
         [DataMember]
         public string Id { get; set; }
-
-        [DataMember]
-        public SensorState State { get; set; }
-
-        [DataMember]
-        public SensorConfig Config { get; set; }
     }
 }
