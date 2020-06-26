@@ -90,65 +90,62 @@ namespace InnerCore.Api.DeConz
 
         private void HandleResult(string result)
         {
-            if (SensorChanged != null)
+            var message = JsonConvert.DeserializeObject<Message>(result);
+
+            if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Sensor)
             {
-                var message = JsonConvert.DeserializeObject<Message>(result);
+                if (SensorChanged != null)
+                {
+                    var sensorMessage = JsonConvert.DeserializeObject<SensorMessage>(result);
+                    SensorChanged(this, new SensorChangedEvent()
+                    {
+                        Id = message.Id,
+                        Config = sensorMessage.Config,
+                        State = sensorMessage.State
+                    });
+                }
+            }
+            else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Light)
+            {
+                if (LightChanged != null)
+                {
+                    var lightMessage = JsonConvert.DeserializeObject<LightMessage>(result);
 
-                if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Sensor)
-                {
-                    if (SensorChanged != null)
+                    LightChanged(this, new LightChangedEvent()
                     {
-                        var sensorMessage = JsonConvert.DeserializeObject<SensorMessage>(result);
-                        SensorChanged(this, new SensorChangedEvent()
-                        {
-                            Id = message.Id,
-                            Config = sensorMessage.Config,
-                            State = sensorMessage.State
-                        });
-                    }
+                        Id = message.Id,
+                        State = lightMessage.State
+                    });
                 }
-                else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Light)
+            }
+            else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Group)
+            {
+                if (GroupChanged != null)
                 {
-                    if (LightChanged != null)
+                    var groupMessage = JsonConvert.DeserializeObject<GroupMessage>(result);
+                    GroupChanged(this, new GroupChangedEvent()
                     {
-                        var lightMessage = JsonConvert.DeserializeObject<LightMessage>(result);
-
-                        LightChanged(this, new LightChangedEvent()
-                        {
-                            Id = message.Id,
-                            State = lightMessage.State
-                        });
-                    }
+                        Id = message.Id,
+                        AnyOn = groupMessage.AnyOn,
+                        AllOn = groupMessage.AllOn
+                    });
                 }
-                else if (message.Event == EventType.Changed && message.Type == MessageType.Event && message.ResourceType == ResourceType.Group)
+            }
+            else if (message.Event == EventType.SceneCalled && message.Type == MessageType.Event && message.ResourceType == ResourceType.Scene)
+            {
+                if (SceneCalled != null)
                 {
-                    if (GroupChanged != null)
+                    var szeneMessage = JsonConvert.DeserializeObject<SzeneMessage>(result);
+                    SceneCalled(this, new SceneCalledEvent()
                     {
-                        var groupMessage = JsonConvert.DeserializeObject<GroupMessage>(result);
-                        GroupChanged(this, new GroupChangedEvent()
-                        {
-                            Id = message.Id,
-                            AnyOn = groupMessage.AnyOn,
-                            AllOn = groupMessage.AllOn
-                        });
-                    }
+                        GroupId = szeneMessage.GroupId,
+                        SceneId = szeneMessage.SceneId
+                    });
                 }
-                else if (message.Event == EventType.SceneCalled && message.Type == MessageType.Event && message.ResourceType == ResourceType.Scene)
-                {
-                    if (SceneCalled != null)
-                    {
-                        var szeneMessage = JsonConvert.DeserializeObject<SzeneMessage>(result);
-                        SceneCalled(this, new SceneCalledEvent()
-                        {
-                            GroupId = szeneMessage.GroupId,
-                            SceneId = szeneMessage.SceneId
-                        });
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException($"not supported message (event: {message.Event}, type: {message.Type}, resource: {message.ResourceType})");
-                }
+            }
+            else
+            {
+                throw new NotSupportedException($"not supported message (event: {message.Event}, type: {message.Type}, resource: {message.ResourceType})");
             }
         }
     }

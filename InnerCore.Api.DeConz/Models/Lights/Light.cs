@@ -32,6 +32,16 @@ namespace InnerCore.Api.DeConz.Models.Lights
         [DataMember(Name = "swversion")]
         public string SoftwareVersion { get; set; }
 
+        [DataMember(Name = "hascolor")]
+        public bool? HasColor { get; set; }
+
+        [DataMember(Name = "ctmin")]
+        public int? MinColorTemperature { get; set; }
+
+        [DataMember(Name = "ctmax")]
+        public int? MaxColorTemperature { get; set; }
+
+
         #region DeConz specific
 
         /// <summary>
